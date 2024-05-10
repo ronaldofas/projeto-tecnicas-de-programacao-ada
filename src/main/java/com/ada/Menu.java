@@ -1,6 +1,6 @@
 package com.ada;
 
-import com.ada.banco.BancoControlador;
+import com.ada.banco.BancoService;
 import com.ada.banco.TipoConta;
 import com.ada.cliente.*;
 import com.ada.conta.Conta;
@@ -13,10 +13,10 @@ public class Menu {
 
 
 
-    private BancoControlador bancoController;
+    private BancoService bancoService;
 
-    public Menu(BancoControlador bancoController) {
-        this.bancoController = bancoController;
+    public Menu(BancoService bancoService) {
+        this.bancoService = bancoService;
     }
 
 
@@ -37,7 +37,9 @@ public class Menu {
             System.out.println("5 - Consultar Saldo");
             System.out.println("6 - Listar Contas");
             System.out.println("7 - Listar Transações");
-            System.out.println("8 - Sair");
+            System.out.println("8 - Listar Contas VIP");
+            System.out.println("9 - Listar Contas Varejo");
+            System.out.println("99 - Sair");
 
             System.out.print("Opção > ");
             opcao = scanner.nextInt();
@@ -73,6 +75,12 @@ public class Menu {
                     listarTransacoes(scanner);
                     break;
                 case 8:
+                    listarContasVip();
+                    break;
+                case 9:
+                    listarContasVarejo();
+                    break;
+                case 99:
                     System.exit(0);
                     break;
                 default:
@@ -86,6 +94,25 @@ public class Menu {
         }
     }
 
+    private void listarContasVarejo() {
+        List<Conta> contas = bancoService.buscarContasVarejo();
+        System.out.println("\tContas cadastradas Varejo");
+        System.out.println("\t-------------------------------------");
+        for (Conta conta : contas) {
+            System.out.println("\t\tNumero: " + conta.getNumero() + " - Saldo: " + conta.consultarSaldo() + " - Cliente: " + conta.getCliente().getNome());
+        }
+        System.out.println("\t-------------------------------------");
+    }
+
+    private void listarContasVip() {
+        List<Conta> contas = bancoService.buscarContasVip();
+        System.out.println("\tContas cadastradas Vip");
+        System.out.println("\t-------------------------------------");
+        for (Conta conta : contas) {
+            System.out.println("\t\tNumero: " + conta.getNumero() + " - Saldo: " + conta.consultarSaldo() + " - Cliente: " + conta.getCliente().getNome());
+        }
+        System.out.println("\t-------------------------------------");
+    }
 
 
     // Métodos de interação com o usuário
@@ -105,7 +132,7 @@ public class Menu {
             tipoConta = getTipoConta(tipo);
         }
 
-        String numero = bancoController.abrirConta(cliente, tipoConta);
+        String numero = bancoService.abrirConta(cliente, tipoConta);
         showMessage("Conta aberta com sucesso. Número da conta: " + numero);
     }
 
@@ -117,8 +144,8 @@ public class Menu {
         double valor = scanner.nextDouble();
         scanner.nextLine();
 
-        Conta conta = bancoController.buscarConta(numero);
-        bancoController.sacar(conta, valor);
+        Conta conta = bancoService.buscarConta(numero);
+        bancoService.sacar(conta, valor);
         showMessage("Saque realizado com sucesso. Saldo atual: " + conta.consultarSaldo());
     }
 
@@ -130,8 +157,8 @@ public class Menu {
         double valor = scanner.nextDouble();
         scanner.nextLine();
 
-        Conta conta = bancoController.buscarConta(numero);
-        bancoController.depositar(conta, valor);
+        Conta conta = bancoService.buscarConta(numero);
+        bancoService.depositar(conta, valor);
         showMessage("Depósito realizado com sucesso. Saldo atual: " + conta.consultarSaldo());
     }
 
@@ -146,22 +173,22 @@ public class Menu {
         double valor = scanner.nextDouble();
         scanner.nextLine();
 
-        Conta contaOrigem = bancoController.buscarConta(numeroOrigem);
-        Conta contaDestino = bancoController.buscarConta(numeroDestino);
-        bancoController.transferir(contaOrigem, contaDestino, valor);
+        Conta contaOrigem = bancoService.buscarConta(numeroOrigem);
+        Conta contaDestino = bancoService.buscarConta(numeroDestino);
+        bancoService.transferir(contaOrigem, contaDestino, valor);
         showMessage("Transferência realizada com sucesso. Saldo atual: " + contaOrigem.consultarSaldo());
     }
 
     private void consultarSaldo(Scanner scanner) {
         System.out.print("\tDigite o número da conta > ");
         String numero = scanner.nextLine();
-        Conta conta = bancoController.buscarConta(numero);
+        Conta conta = bancoService.buscarConta(numero);
         showMessage("Saldo atual: " + conta.consultarSaldo());
     }
 
     private void listarContas() {
         System.out.println("\tContas cadastradas");
-        List<Conta> contas = bancoController.buscarContas();
+        List<Conta> contas = bancoService.buscarContas();
         System.out.println("\t-------------------------------------");
         for (Conta conta : contas) {
             System.out.println("\t\tNumero: " + conta.getNumero() + " - Saldo: " + conta.consultarSaldo() + " - Cliente: " + conta.getCliente().getNome());
@@ -172,7 +199,7 @@ public class Menu {
     private void listarTransacoes( Scanner scanner) {
         System.out.print("\tInforme o numero da conta > ");
         String numero = scanner.nextLine();
-        Conta conta = bancoController.buscarConta(numero);
+        Conta conta = bancoService.buscarConta(numero);
         List<Transacao> transacoes = conta.getTransacoes();
 
         System.out.println("\tTransações da conta: " + numero);

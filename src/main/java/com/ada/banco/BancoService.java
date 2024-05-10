@@ -3,14 +3,15 @@ package com.ada.banco;
 import com.ada.cliente.Cliente;
 import com.ada.cliente.Identificador;
 import com.ada.conta.*;
+import com.ada.util.FiltrarVip;
 
 import java.util.List;
 
-public class BancoControlador {
+public class BancoService {
 
     private ContaRepositorio contaRepositorio;
 
-    public BancoControlador(ContaRepositorio contaRepositorio) {
+    public BancoService(ContaRepositorio contaRepositorio) {
         this.contaRepositorio = contaRepositorio;
     }
 
@@ -120,9 +121,13 @@ public class BancoControlador {
     }
 
 
+    public List<Conta> buscarContasVip() {
+        final var filtro = new FiltrarVip();
+        return contaRepositorio.buscarTodas(filtro);
+    }
 
-
-
-
-
+    public List<Conta> buscarContasVarejo() {
+        return contaRepositorio
+                .buscarTodas(x -> x.consultarSaldo() < 500_000);
+    }
 }

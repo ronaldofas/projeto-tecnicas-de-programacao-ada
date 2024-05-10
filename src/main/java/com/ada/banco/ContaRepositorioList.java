@@ -1,6 +1,7 @@
 package com.ada.banco;
 
 import com.ada.conta.Conta;
+import com.ada.util.Filtro;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,5 +52,18 @@ public class ContaRepositorioList implements ContaRepositorio {
     @Override
     public List<Conta> buscarTodas() {
         return contas;
+    }
+
+    @Override
+    public List<Conta> buscarTodas(final Filtro filtro) {
+        final List<Conta> contasFiltradas = new ArrayList<>();
+
+        for (Conta conta : contas) {
+            if (filtro.filtrar(conta)) {
+                contasFiltradas.add(conta);
+            }
+        }
+
+        return contasFiltradas;
     }
 }

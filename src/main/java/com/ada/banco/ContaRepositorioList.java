@@ -5,6 +5,7 @@ import com.ada.util.Filtro;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ContaRepositorioList implements ContaRepositorio {
 
@@ -56,14 +57,8 @@ public class ContaRepositorioList implements ContaRepositorio {
 
     @Override
     public List<Conta> buscarTodas(final Filtro filtro) {
-        final List<Conta> contasFiltradas = new ArrayList<>();
-
-        for (Conta conta : contas) {
-            if (filtro.filtrar(conta)) {
-                contasFiltradas.add(conta);
-            }
-        }
-
-        return contasFiltradas;
+        return contas.stream()
+                .filter(filtro::filtrar)
+                .collect(Collectors.toList());
     }
 }

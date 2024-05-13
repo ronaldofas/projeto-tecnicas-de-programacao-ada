@@ -1,5 +1,10 @@
 package com.ada.cliente;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@ToString
+@EqualsAndHashCode
 public class CPF implements Identificador<String> {
 
     private String valor;

@@ -1,7 +1,14 @@
 package com.ada.cliente;
 
-import java.time.LocalDate;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
+@Getter
+@ToString
 public class Cliente {
 
     private Identificador<String> identificador;
@@ -30,26 +37,6 @@ public class Cliente {
         this.status = !this.status;
     }
 
-    public Identificador<String> getIdentificador() {
-        return identificador;
-    }
-
-    public Classificacao getClassificacao() {
-        return classificacao;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public LocalDate getDataCadastro() {
-        return dataCadastro;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
     public void validar(){
         if (this.nome == null || this.nome.isBlank()){
             throw new IllegalArgumentException("O nome não pode ser vazio");
@@ -62,4 +49,16 @@ public class Cliente {
         }
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final Cliente cliente = (Cliente) o;
+        return Objects.equals(this.identificador, cliente.identificador);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(identificador);
+    }
 }

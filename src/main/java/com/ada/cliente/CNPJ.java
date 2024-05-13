@@ -1,5 +1,8 @@
 package com.ada.cliente;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class CNPJ implements Identificador<String> {
 
     private String valor;

@@ -1,7 +1,6 @@
 package com.ada.cliente;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -9,7 +8,7 @@ import java.util.Objects;
 
 @Getter
 @ToString
-public class Cliente {
+public class Cliente implements Comparable<Cliente> {
 
     private Identificador<String> identificador;
     private Classificacao classificacao;
@@ -26,25 +25,25 @@ public class Cliente {
         this.validar();
     }
 
-    public void alterarNome(String novoNome){
-        if (novoNome == null || novoNome.isBlank()){
+    public void alterarNome(String novoNome) {
+        if (novoNome == null || novoNome.isBlank()) {
             throw new IllegalArgumentException("O nome não pode ser vazio");
         }
         this.nome = novoNome;
     }
 
-    public void ativarDesativar(){
+    public void ativarDesativar() {
         this.status = !this.status;
     }
 
-    public void validar(){
-        if (this.nome == null || this.nome.isBlank()){
+    public void validar() {
+        if (this.nome == null || this.nome.isBlank()) {
             throw new IllegalArgumentException("O nome não pode ser vazio");
         }
-        if (this.identificador == null){
+        if (this.identificador == null) {
             throw new IllegalArgumentException("O identificador não pode ser nulo");
         }
-        if (this.classificacao == null){
+        if (this.classificacao == null) {
             throw new IllegalArgumentException("A classificação não pode ser nula");
         }
     }
@@ -60,5 +59,19 @@ public class Cliente {
     @Override
     public int hashCode() {
         return Objects.hashCode(identificador);
+    }
+
+    /*
+    retorna 0  (iguais)
+    retorna > 0 (maior)
+    retorna < 0 (menor)
+     */
+    @Override
+    public int compareTo(final Cliente cliente) {
+        return
+                this.identificador
+                        .getValor().compareTo(
+                                cliente.identificador.getValor()
+                                             );
     }
 }

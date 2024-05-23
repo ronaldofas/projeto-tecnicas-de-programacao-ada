@@ -5,9 +5,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class CNPJ implements Identificador<String> {
 
-    private String valor;
+    private final String valor;
 
-    public CNPJ(String valor) {
+    public CNPJ(final String valor) {
         this.valor = valor;
         this.validar();
     }

@@ -7,9 +7,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class CPF implements Identificador<String> {
 
-    private String valor;
+    final private String valor;
 
-    public CPF(String valor) {
+    public CPF(final String valor) {
         this.valor = valor;
         this.validar();
     }

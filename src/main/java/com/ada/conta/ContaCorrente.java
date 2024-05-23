@@ -10,14 +10,14 @@ import java.util.List;
 
 public class ContaCorrente implements Conta {
 
-    private Identificador<String> numeroConta;
+    private final Identificador<String> numeroConta;
     private double saldo;
-    private Cliente cliente;
-    private LocalDateTime dataAtualizacao;
+    private final Cliente cliente;
+    private final LocalDateTime dataAtualizacao;
     private List<Transacao> transacoes = new ArrayList<>();
     private boolean status;
 
-    public ContaCorrente(Identificador<String> numeroConta, Cliente cliente) {
+    public ContaCorrente(final Identificador<String> numeroConta, final Cliente cliente) {
         this.numeroConta = numeroConta;
         this.cliente = cliente;
         this.dataAtualizacao = LocalDateTime.now();
@@ -46,7 +46,7 @@ public class ContaCorrente implements Conta {
     }
 
     @Override
-    public void sacar(double valor) {
+    public void sacar(final double valor) {
         if (this.saldo < valor){
             throw new IllegalArgumentException("Saldo isuficiente");
         }
@@ -61,7 +61,7 @@ public class ContaCorrente implements Conta {
     }
 
     @Override
-    public void depositar(double valor) {
+    public void depositar(final double valor) {
         if (valor <= 0){
             throw new IllegalArgumentException("O valor do deposito deve ser maior que zero");
         }
@@ -69,7 +69,7 @@ public class ContaCorrente implements Conta {
     }
 
     @Override
-    public void transferir(double valor, Conta contaDestino) {
+    public void transferir(final double valor, final Conta contaDestino) {
         if (this.saldo < valor){
             throw new IllegalArgumentException("Saldo isuficiente");
         }
@@ -85,7 +85,7 @@ public class ContaCorrente implements Conta {
     }
 
     @Override
-    public void criarTransacao(Transacao transacao) {
+    public void criarTransacao(final Transacao transacao) {
         transacoes.add(transacao);
     }
 }

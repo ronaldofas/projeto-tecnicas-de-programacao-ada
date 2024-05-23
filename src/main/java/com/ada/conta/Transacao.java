@@ -1,57 +1,29 @@
 package com.ada.conta;
 
 import com.ada.cliente.Cliente;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+
+@Getter
 public class Transacao {
 
-    private TipoTransacao transacao;
-    private LocalDateTime dataTransacao;
-    private double valor;
+    private final TipoTransacao transacao;
+    private final LocalDateTime dataTransacao;
+    private final double valor;
+    @Setter
     private String observacao;
+    @Setter
     private Cliente remetente;
+    @Setter
     private Cliente destinatario;
 
-    public Transacao(TipoTransacao transacao, double valor) {
+    public Transacao(final TipoTransacao transacao, final double valor) {
         this.transacao = transacao;
         this.valor = valor;
         this.dataTransacao = LocalDateTime.now();
     }
 
-    public void setObservacao(String observacao) {
-        this.observacao = observacao;
-    }
-
-    public void setRemetente(Cliente remetente) {
-        this.remetente = remetente;
-    }
-
-    public void setDestinatario(Cliente destinatario) {
-        this.destinatario = destinatario;
-    }
-
-    public TipoTransacao getTransacao() {
-        return transacao;
-    }
-
-    public LocalDateTime getDataTransacao() {
-        return dataTransacao;
-    }
-
-    public double getValor() {
-        return valor;
-    }
-
-    public String getObservacao() {
-        return observacao;
-    }
-
-    public Cliente getRemetente() {
-        return remetente;
-    }
-
-    public Cliente getDestinatario() {
-        return destinatario;
-    }
 }

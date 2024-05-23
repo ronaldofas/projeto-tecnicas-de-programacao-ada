@@ -7,7 +7,7 @@ public class NumeroConta implements Identificador<String> {
     private static int numeroIncremental = 0;
     private String numero;
 
-    public NumeroConta(String numero) {
+    public NumeroConta(final String numero) {
         this.numero = numero;
         this.validar();
     }

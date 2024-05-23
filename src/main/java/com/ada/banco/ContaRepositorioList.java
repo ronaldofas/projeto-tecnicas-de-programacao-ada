@@ -5,43 +5,44 @@ import com.ada.util.Filtro;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ContaRepositorioList implements ContaRepositorio {
 
-    List<Conta> contas = new ArrayList<>();
+    final List<Conta> contas = new ArrayList<>();
 
     @Override
-    public void salvar(Conta conta) {
+    public void salvar(final Conta conta) {
         this.contas.add(conta);
     }
 
     @Override
-    public void atualizar(Conta conta) {
+    public void atualizar(final Conta conta) {
 
         for (int i = 0; i < contas.size(); i++) {
             if (contas.get(i).getNumero().equals(conta.getNumero())) {
                 contas.set(i, conta);
             }
         }
-
     }
 
     @Override
-    public Conta buscarPorNumero(String numero) {
-        for (Conta conta : contas) {
+    public Optional<Conta> buscarPorNumero(final String numero) {
+        for (final Conta conta : contas) {
             if (conta.getNumero().equals(numero)) {
-                return conta;
+                return Optional.of(conta);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public List<Conta> bucarPorCliente(String identificador) {
-        List<Conta> contasCliente = new ArrayList<>();
+    public List<Conta> bucarPorCliente(final String identificador) {
+        final List<Conta> contasCliente = new ArrayList<>();
 
-        for (Conta conta : contas) {
+        for (final Conta conta : contas) {
             if (conta.getCliente().getIdentificador().getValor().equals(identificador)) {
                 contasCliente.add(conta);
             }
@@ -56,9 +57,9 @@ public class ContaRepositorioList implements ContaRepositorio {
     }
 
     @Override
-    public List<Conta> buscarTodas(final Filtro filtro) {
+    public List<Conta> buscarTodas(final Predicate<Conta> predicate) {
         return contas.stream()
-                .filter(filtro::filtrar)
+                .filter(predicate)
                 .collect(Collectors.toList());
     }
 }

@@ -2,7 +2,10 @@ package com.ada.util;
 
 import com.ada.conta.Conta;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class FiltrarVip implements Filtro{
 

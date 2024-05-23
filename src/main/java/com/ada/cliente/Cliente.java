@@ -10,13 +10,14 @@ import java.util.Objects;
 @ToString
 public class Cliente implements Comparable<Cliente> {
 
-    private Identificador<String> identificador;
-    private Classificacao classificacao;
+    private final Identificador<String> identificador;
+    private final Classificacao classificacao;
     private String nome;
-    private LocalDate dataCadastro;
+    private final LocalDate dataCadastro;
     private boolean status;
 
-    public Cliente(Identificador<String> identificador, Classificacao classificacao, String nome) {
+    public Cliente(
+            final Identificador<String> identificador, final Classificacao classificacao, final String nome) {
         this.identificador = identificador;
         this.classificacao = classificacao;
         this.nome = nome;
@@ -25,7 +26,7 @@ public class Cliente implements Comparable<Cliente> {
         this.validar();
     }
 
-    public void alterarNome(String novoNome) {
+    public void alterarNome(final String novoNome) {
         if (novoNome == null || novoNome.isBlank()) {
             throw new IllegalArgumentException("O nome não pode ser vazio");
         }

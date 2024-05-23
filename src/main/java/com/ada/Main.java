@@ -5,12 +5,12 @@ import com.ada.banco.ContaRepositorio;
 import com.ada.banco.ContaRepositorioList;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
-        ContaRepositorio contaRepositorio = new ContaRepositorioList();
-        BancoService controlador = new BancoService(contaRepositorio);
+        final ContaRepositorio contaRepositorio = new ContaRepositorioList();
+        final BancoService controlador = new BancoService(contaRepositorio);
 
-        Menu menu = new Menu(controlador);
+        final Menu menu = new Menu(controlador);
         menu.criarMenu();
 
     }

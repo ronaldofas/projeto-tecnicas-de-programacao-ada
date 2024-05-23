@@ -3,20 +3,22 @@ package com.ada.conta;
 import com.ada.cliente.Classificacao;
 import com.ada.cliente.Cliente;
 import com.ada.cliente.Identificador;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class ContaInvestimento implements Conta {
 
-    private Identificador<String> numeroConta;
+    private final Identificador<String> numeroConta;
     private double saldo;
-    private Cliente cliente;
+    private final Cliente cliente;
     private LocalDateTime dataAtualizacao;
+    @Getter
     private List<Transacao> transacoes;
     private boolean status;
 
-    public ContaInvestimento(Identificador<String> numeroConta, Cliente cliente) {
+    public ContaInvestimento(final Identificador<String> numeroConta, final Cliente cliente) {
         this.numeroConta = numeroConta;
         this.cliente = cliente;
         this.dataAtualizacao = LocalDateTime.now();
@@ -34,7 +36,7 @@ public class ContaInvestimento implements Conta {
     }
 
     @Override
-    public void sacar(double valor) {
+    public void sacar(final double valor) {
         if (this.saldo < valor){
             throw new IllegalArgumentException("Saldo insuficiente");
         }
@@ -42,7 +44,7 @@ public class ContaInvestimento implements Conta {
     }
 
     @Override
-    public void depositar(double valor) {
+    public void depositar(final double valor) {
         if (valor <= 0){
             throw new IllegalArgumentException("Valor do depósito deve ser maior que zero");
         }
@@ -50,7 +52,7 @@ public class ContaInvestimento implements Conta {
     }
 
     @Override
-    public void transferir(double valor, Conta contaDestino) {
+    public void transferir(final double valor, final Conta contaDestino) {
         if (this.saldo < valor){
             throw new IllegalArgumentException("Saldo insuficiente");
         }
@@ -64,12 +66,8 @@ public class ContaInvestimento implements Conta {
     }
 
     @Override
-    public void criarTransacao(Transacao transacao) {
+    public void criarTransacao(final Transacao transacao) {
         this.transacoes.add(transacao);
-    }
-
-    public List<Transacao> getTransacoes() {
-        return transacoes;
     }
 
     public void aplicarRendimento(){

@@ -3,34 +3,35 @@ package com.ada.banco;
 import com.ada.cliente.Cliente;
 import com.ada.cliente.Identificador;
 import com.ada.conta.*;
-import com.ada.util.FiltrarVip;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BancoService {
 
-    private ContaRepositorio contaRepositorio;
+    private final ContaRepositorio contaRepositorio;
 
-    public BancoService(ContaRepositorio contaRepositorio) {
+    public BancoService(final ContaRepositorio contaRepositorio) {
         this.contaRepositorio = contaRepositorio;
     }
 
-    public String abrirConta(Cliente cliente, TipoConta tipoConta) {
+    public String abrirConta(final Cliente cliente, final TipoConta tipoConta) {
 
-        NumeroConta numeroConta;
+        final NumeroConta numeroConta;
         if (tipoConta.equals(TipoConta.CORRENTE)) {
             numeroConta = new NumeroConta();
-            Conta conta = new ContaCorrente(numeroConta, cliente);
+            final Conta conta = new ContaCorrente(numeroConta, cliente);
             contaRepositorio.salvar(conta);
 
         } else if (tipoConta.equals(TipoConta.POUPANCA)) {
             numeroConta = new NumeroConta();
-            Conta conta = new ContaPoupanca(numeroConta, cliente);
+            final Conta conta = new ContaPoupanca(numeroConta, cliente);
             contaRepositorio.salvar(conta);
 
         } else if (tipoConta.equals(TipoConta.INVESTIMENTO)) {
             numeroConta = new NumeroConta();
-            Conta conta = new ContaInvestimento(numeroConta, cliente);
+            final Conta conta = new ContaInvestimento(numeroConta, cliente);
             contaRepositorio.salvar(conta);
 
         } else {
@@ -39,65 +40,65 @@ public class BancoService {
         return numeroConta.getValor();
     }
 
-    public void depositar(Conta conta, double valor) {
+    public void depositar(final Conta conta, final double valor) {
         conta.depositar(valor);
-        Transacao transacao = new Transacao(TipoTransacao.DEPOSITO, valor);
+        final Transacao transacao = new Transacao(TipoTransacao.DEPOSITO, valor);
         conta.criarTransacao(transacao);
         contaRepositorio.atualizar(conta);
     }
 
-    public void sacar(Conta conta, double valor) {
+    public void sacar(final Conta conta, final double valor) {
         conta.sacar(valor);
-        Transacao transacao = new Transacao(TipoTransacao.SAQUE, valor);
+        final Transacao transacao = new Transacao(TipoTransacao.SAQUE, valor);
         conta.criarTransacao(transacao);
         contaRepositorio.atualizar(conta);
     }
 
-    public void investir(ContaCorrente contaCorrente, double valor) {
+    public void investir(final ContaCorrente contaCorrente, final double valor) {
 
-        Cliente cliente = contaCorrente.getCliente();
-        List<Conta> contas = contaRepositorio.bucarPorCliente(cliente.getIdentificador().getValor());
+        final Cliente cliente = contaCorrente.getCliente();
+        final List<Conta> contas = contaRepositorio.bucarPorCliente(cliente.getIdentificador().getValor());
 
         Conta contaInvestimento = null;
 
-        for (Conta conta1 : contas) {
+        for (final Conta conta1 : contas) {
             if (conta1 instanceof ContaInvestimento) {
                 contaInvestimento = conta1;
             }
         }
 
         if (contaInvestimento == null) {
-            Identificador<String> numeroConta = new NumeroConta();
+            final Identificador<String> numeroConta = new NumeroConta();
             contaInvestimento = new ContaInvestimento(numeroConta, cliente);
             contaRepositorio.salvar(contaInvestimento);
         }
 
         contaCorrente.transferir(valor, contaInvestimento);
 
-        Transacao transacaoOrigem = new Transacao(TipoTransacao.INVESTIMENTO, valor);
+        final Transacao transacaoOrigem = new Transacao(TipoTransacao.INVESTIMENTO, valor);
         transacaoOrigem.setRemetente(contaCorrente.getCliente());
         transacaoOrigem.setDestinatario(contaInvestimento.getCliente());
         contaCorrente.criarTransacao(transacaoOrigem);
         contaRepositorio.atualizar(contaCorrente);
 
-        Transacao transacaoDestino = new Transacao(TipoTransacao.INVESTIMENTO, valor);
+        final Transacao transacaoDestino = new Transacao(TipoTransacao.INVESTIMENTO, valor);
         transacaoDestino.setRemetente(contaCorrente.getCliente());
         transacaoDestino.setDestinatario(contaInvestimento.getCliente());
         contaInvestimento.criarTransacao(transacaoDestino);
         contaRepositorio.atualizar(contaInvestimento);
     }
 
-    public void transferir(Conta contaOrigem, Conta contaDestino, double valor) {
+    public void transferir(final Conta contaOrigem, final Conta contaDestino, final double valor) {
         contaOrigem.transferir(valor, contaDestino);
 
-        Transacao transacaoOrigem = new Transacao(TipoTransacao.TRANSFERENCIA, valor);
+        final Transacao transacaoOrigem = new Transacao(TipoTransacao.TRANSFERENCIA, valor);
         transacaoOrigem.setRemetente(contaOrigem.getCliente());
         transacaoOrigem.setDestinatario(contaDestino.getCliente());
         contaOrigem.criarTransacao(transacaoOrigem);
         contaRepositorio.atualizar(contaOrigem);
 
 
-        Transacao transacaoDestino = new Transacao(TipoTransacao.TRANSFERENCIA, valor);
+        final Transacao transacaoDestino = new Transacao(TipoTransacao.TRANSFERENCIA, valor);
         transacaoOrigem.setRemetente(contaOrigem.getCliente());
         transacaoOrigem.setDestinatario(contaDestino.getCliente());
         contaDestino.criarTransacao(transacaoDestino);
@@ -108,26 +109,20 @@ public class BancoService {
         return contaRepositorio.buscarTodas();
     }
 
-    public Conta buscarConta(String numero) {
-        Conta conta = contaRepositorio.buscarPorNumero(numero);
-        if (conta == null) {
-            throw new IllegalArgumentException("Conta "+numero+" não encontrada");
-        }
-        return conta;
+    public Optional<Conta> buscarConta(final String numero) {
+        return contaRepositorio.buscarPorNumero(numero);
     }
 
-    public List<Conta> buscarContasCliente(String identificador){
+    public List<Conta> buscarContasCliente(final String identificador){
         return contaRepositorio.bucarPorCliente(identificador);
     }
 
 
     public List<Conta> buscarContasVip() {
-        final var filtro = new FiltrarVip();
-        return contaRepositorio.buscarTodas(filtro);
+        return contaRepositorio.buscarTodas(x -> x.consultarSaldo() >= 500_000);
     }
 
     public List<Conta> buscarContasVarejo() {
-        return contaRepositorio
-                .buscarTodas(x -> x.consultarSaldo() < 500_000);
+        return contaRepositorio.buscarTodas(c -> c.consultarSaldo() < 500_00);
     }
 }

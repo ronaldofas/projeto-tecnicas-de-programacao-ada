@@ -7,15 +7,14 @@ import com.ada.conta.Conta;
 import com.ada.conta.Transacao;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Menu {
 
+    private final BancoService bancoService;
 
-
-    private BancoService bancoService;
-
-    public Menu(BancoService bancoService) {
+    public Menu(final BancoService bancoService) {
         this.bancoService = bancoService;
     }
 
@@ -23,7 +22,7 @@ public class Menu {
     // Métodos de Criação de Menu
 
     public void criarMenu() {
-        Scanner scanner = new Scanner(System.in);
+        final Scanner scanner = new Scanner(System.in);
         int opcao = 0;
 
         do {
@@ -46,11 +45,11 @@ public class Menu {
             scanner.nextLine();
             executarOpcao(opcao, scanner);
 
-        } while (opcao != 8);
+        } while (opcao != 99);
 
     }
 
-    private void executarOpcao(int opcao, Scanner scanner) {
+    private void executarOpcao(final int opcao, final Scanner scanner) {
         try {
             switch (opcao) {
                 case 1:
@@ -95,127 +94,153 @@ public class Menu {
     }
 
     private void listarContasVarejo() {
-        List<Conta> contas = bancoService.buscarContasVarejo();
+        final List<Conta> contas = bancoService.buscarContasVarejo();
         System.out.println("\tContas cadastradas Varejo");
         System.out.println("\t-------------------------------------");
-        for (Conta conta : contas) {
-            System.out.println("\t\tNumero: " + conta.getNumero() + " - Saldo: " + conta.consultarSaldo() + " - Cliente: " + conta.getCliente().getNome());
-        }
+        contas.forEach(conta -> {
+            System.out.println("\t\tNumero: " + conta.getNumero() +
+                    " - Saldo: " + conta.consultarSaldo() +
+                    " - Cliente: " + conta.getCliente().getNome());
+        });
         System.out.println("\t-------------------------------------");
     }
 
     private void listarContasVip() {
-        List<Conta> contas = bancoService.buscarContasVip();
+        final List<Conta> contas = bancoService.buscarContasVip();
         System.out.println("\tContas cadastradas Vip");
         System.out.println("\t-------------------------------------");
-        for (Conta conta : contas) {
-            System.out.println("\t\tNumero: " + conta.getNumero() + " - Saldo: " + conta.consultarSaldo() + " - Cliente: " + conta.getCliente().getNome());
-        }
+        contas.forEach(conta -> {
+            System.out.println("\t\tNumero: " + conta.getNumero() +
+                    " - Saldo: " + conta.consultarSaldo() +
+                    " - Cliente: " + conta.getCliente().getNome());
+        });
         System.out.println("\t-------------------------------------");
     }
 
 
     // Métodos de interação com o usuário
 
-    private void abrirConta(Scanner scanner) {
-        Cliente cliente = criarCliente(scanner);
+    private void abrirConta(final Scanner scanner) {
+        final Cliente cliente = criarCliente(scanner);
 
         System.out.print("\tDigite o tipo da conta: 1-Corrente, 2-Poupança, 3-Investimento > ");
         int tipo = scanner.nextInt();
         scanner.nextLine();
-        TipoConta tipoConta = getTipoConta(tipo);
+        Optional<TipoConta> tipoConta = getTipoConta(tipo);
 
-        while (tipoConta == null) {
+        while (tipoConta.isEmpty()) {
             System.err.print("\tTipo de conta inválido. Digite novamente > ");
             tipo = scanner.nextInt();
             scanner.nextLine();
             tipoConta = getTipoConta(tipo);
         }
 
-        String numero = bancoService.abrirConta(cliente, tipoConta);
+        final String numero = bancoService.abrirConta(cliente, tipoConta.get());
         showMessage("Conta aberta com sucesso. Número da conta: " + numero);
     }
 
-    private void sacar(Scanner scanner) {
+    private void sacar(final Scanner scanner) {
         System.out.print("\tDigite o número da conta > ");
-        String numero = scanner.nextLine();
+        final String numero = String.format("%06d", Integer.parseInt(scanner.nextLine()));
 
         System.out.print("\tDigite o valor do saque > ");
-        double valor = scanner.nextDouble();
+        final double valor = scanner.nextDouble();
         scanner.nextLine();
 
-        Conta conta = bancoService.buscarConta(numero);
-        bancoService.sacar(conta, valor);
-        showMessage("Saque realizado com sucesso. Saldo atual: " + conta.consultarSaldo());
+        final Optional<Conta> conta = bancoService.buscarConta(numero);
+        if (conta.isEmpty()){
+            throw new IllegalArgumentException("Conta não localizada!");
+        } else {
+            bancoService.sacar(conta.get(), valor);
+            showMessage("Saque realizado com sucesso. Saldo atual: " + conta.get().consultarSaldo());
+        }
     }
 
-    private void depositar(Scanner scanner) {
+    private void depositar(final Scanner scanner) {
         System.out.print("\tDigite o número da conta > ");
-        String numero = scanner.nextLine();
+        final String numero = String.format("%06d", Integer.parseInt(scanner.nextLine()));
 
         System.out.print("\tDigite o valor do depósito > ");
-        double valor = scanner.nextDouble();
+        final double valor = scanner.nextDouble();
         scanner.nextLine();
 
-        Conta conta = bancoService.buscarConta(numero);
-        bancoService.depositar(conta, valor);
-        showMessage("Depósito realizado com sucesso. Saldo atual: " + conta.consultarSaldo());
+        final Optional<Conta> conta = bancoService.buscarConta(numero);
+        if (conta.isEmpty()){
+            throw new IllegalArgumentException("Conta não localizada!");
+        } else {
+            bancoService.depositar(conta.get(), valor);
+            showMessage("Depósito realizado com sucesso. Saldo atual: " + conta.get().consultarSaldo());
+        }
     }
 
-    private void transferir(Scanner scanner) {
+    private void transferir(final Scanner scanner) {
         System.out.print("\tDigite o número da conta de origem > ");
-        String numeroOrigem = scanner.nextLine();
+        final String numeroOrigem = String.format("%06d", Integer.parseInt(scanner.nextLine()));
 
         System.out.print("\tDigite o número da conta de destino > ");
-        String numeroDestino = scanner.nextLine();
+        final String numeroDestino = String.format("%06d", Integer.parseInt(scanner.nextLine()));;
 
         System.out.print("\tDigite o valor da transferência > ");
-        double valor = scanner.nextDouble();
+        final double valor = scanner.nextDouble();
         scanner.nextLine();
 
-        Conta contaOrigem = bancoService.buscarConta(numeroOrigem);
-        Conta contaDestino = bancoService.buscarConta(numeroDestino);
-        bancoService.transferir(contaOrigem, contaDestino, valor);
-        showMessage("Transferência realizada com sucesso. Saldo atual: " + contaOrigem.consultarSaldo());
+        final Optional<Conta> contaOrigem = bancoService.buscarConta(numeroOrigem);
+        if (contaOrigem.isEmpty()){
+            throw new IllegalArgumentException("Conta origem não localizada!");
+        }
+        final Optional<Conta> contaDestino = bancoService.buscarConta(numeroDestino);
+        if (contaDestino.isEmpty()){
+            throw new IllegalArgumentException("Conta origem não localizada!");
+        } else {
+            bancoService.transferir(contaOrigem.get(), contaDestino.get(), valor);
+            showMessage("Transferência realizada com sucesso. Saldo atual: "
+                    + contaOrigem.get().consultarSaldo());
+        }
     }
 
-    private void consultarSaldo(Scanner scanner) {
+    private void consultarSaldo(final Scanner scanner) {
         System.out.print("\tDigite o número da conta > ");
-        String numero = scanner.nextLine();
-        Conta conta = bancoService.buscarConta(numero);
-        showMessage("Saldo atual: " + conta.consultarSaldo());
+        final String numero = String.format("%06d", Integer.parseInt(scanner.nextLine()));
+        final Optional<Conta> conta = bancoService.buscarConta(numero);
+        if (conta.isEmpty()){
+            throw new IllegalArgumentException("Conta não localizada!");
+        }
+        showMessage("Saldo atual: " + conta.get().consultarSaldo());
     }
 
     private void listarContas() {
         System.out.println("\tContas cadastradas");
-        List<Conta> contas = bancoService.buscarContas();
+        final List<Conta> contas = bancoService.buscarContas();
         System.out.println("\t-------------------------------------");
-        for (Conta conta : contas) {
+        for (final Conta conta : contas) {
             System.out.println("\t\tNumero: " + conta.getNumero() + " - Saldo: " + conta.consultarSaldo() + " - Cliente: " + conta.getCliente().getNome());
         }
         System.out.println("\t-------------------------------------");
     }
 
-    private void listarTransacoes( Scanner scanner) {
+    private void listarTransacoes(final Scanner scanner) {
         System.out.print("\tInforme o numero da conta > ");
-        String numero = scanner.nextLine();
-        Conta conta = bancoService.buscarConta(numero);
-        List<Transacao> transacoes = conta.getTransacoes();
+        final String numero = String.format("%06d", Integer.parseInt(scanner.nextLine()));
+        final Optional<Conta> conta = bancoService.buscarConta(numero);
+        if (conta.isEmpty()){
+            throw new IllegalArgumentException("Conta não localizada!");
+        }
+        final List<Transacao> transacoes = conta.get().getTransacoes();
 
         System.out.println("\tTransações da conta: " + numero);
-        System.out.println("\tCliente: " + conta.getCliente().getNome());
+        System.out.println("\tCliente: " + conta.get().getCliente().getNome());
         System.out.println("\t-------------------------------------");
-        for (Transacao transacao : transacoes) {
+        for (final Transacao transacao : transacoes) {
             System.out.println("\tTipo: " + transacao.getTransacao() + " - Valor: " + transacao.getValor());
         }
         System.out.println("\t-------------------------------------");
-        System.out.println("\tSaldo atual: " + conta.consultarSaldo());
+        System.out.println("\tSaldo atual: " + conta.get().consultarSaldo());
     }
 
 
     // Métodos auxiliares
 
-    private static Cliente criarCliente(Scanner scanner) {
+    private static Cliente criarCliente(final Scanner scanner) {
 
         System.out.print("\tInforme o Tipo de Cliente (PF ou PJ) > ");
         String tipoCliente = scanner.nextLine();
@@ -236,25 +261,24 @@ public class Menu {
         }
 
         System.out.print("\tInforme o nome do cliente > ");
-        String nome = scanner.nextLine();
+        final String nome = scanner.nextLine();
 
-        Cliente cliente = new Cliente(identificador, classificacao, nome);
-        return cliente;
+        return new Cliente(identificador, classificacao, nome);
     }
 
-    private static TipoConta getTipoConta(int tipo) {
+    private static Optional<TipoConta> getTipoConta(final int tipo) {
         switch (tipo) {
             case 1:
-                return TipoConta.CORRENTE;
+                return Optional.of(TipoConta.CORRENTE);
             case 2:
-                return TipoConta.POUPANCA;
+                return Optional.of(TipoConta.POUPANCA);
             case 3:
-                return TipoConta.INVESTIMENTO;
+                return Optional.of(TipoConta.INVESTIMENTO);
         }
-        return null;
+        return Optional.empty();
     }
 
-    private static Classificacao getClassificacao(String tipoCliente) {
+    private static Classificacao getClassificacao(final String tipoCliente) {
         switch (tipoCliente) {
             case "PF":
                 return Classificacao.PF;
@@ -264,7 +288,7 @@ public class Menu {
         return null;
     }
 
-    private static Identificador<String> getIdentificador(String documento,  Classificacao classificacao) {
+    private static Identificador<String> getIdentificador(final String documento, final Classificacao classificacao) {
         try {
             switch (classificacao) {
                 case PF:
@@ -272,24 +296,24 @@ public class Menu {
                 case PJ:
                     return new CNPJ(documento);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             System.err.print("\t" + e.getMessage() + ". ");
         }
         return null;
     }
 
-    private static void sleep(int time) {
+    private static void sleep(final int time) {
         try {
             Thread.sleep(time);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
         }
     }
 
 
-    private static void showMessage(String message) {
+    private static void showMessage(final String message) {
         System.out.println();
         System.out.println("\t============================================================");
-        int size = ((60 - message.length()) / 2)-1;
+        final int size = ((60 - message.length()) / 2)-1;
         System.out.print("\t ");
         for (int i = 0; i < size; i++) {
             System.out.print(" ");
